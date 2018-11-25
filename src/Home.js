@@ -11,10 +11,12 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
-import './Home.css'
+import './Home.css';
 
-import Ranking from './Ranking'
-import Profile from './Profile'
+import Ranking from './Ranking';
+import Profile from './Profile';
+import Firebase from './firebase';
+
 
 const styles = {
   root: {
@@ -33,6 +35,7 @@ function HomeH(props) {
   const [index, setIndex ] = useState(0);
 
   const handleChange = (event, value) => setIndex(value);
+  
 
   return (
     <div>

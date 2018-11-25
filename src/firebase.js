@@ -13,13 +13,22 @@ const config = {
 
 firebase.initializeApp(config);
 
-const fb = {
-  auth: firebase.auth(),
-  db: firebase.firestore()
-};
-
-fb.db.settings({
+const db = firebase.firestore()
+db.settings({
   timestampsInSnapshots: true
 });
+
+const GoogleProvider = new firebase.auth.GoogleAuthProvider();
+
+const fb = {
+  auth: firebase.auth(),
+  users: db.collection("users"),
+  signInGoogle: () => {
+    return firebase.auth().signInWithPopup(GoogleProvider)
+  }
+};
+
+firebase.auth().languageCode = 'pt';
+
 
 export default fb;

@@ -1,9 +1,12 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
-import './App.css';
-import logo from './logo.webp'
-import Home from './Home'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+
+import './App.css';
+import logo from './logo.webp';
+import Home from './Home';
+import Firebase from './firebase';
+
 
 const theme = createMuiTheme({
   palette: {
@@ -12,39 +15,61 @@ const theme = createMuiTheme({
   },
 });
 
-class App extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      logado: false
-    }
-  }
+function App() {
+  const [logado, setLogado] = useState(false);
 
-  handleClick = (event, value) => {
-    this.setState({ logado: !this.state.logado });
-  };
+  useEffect(() => {
+    setupFb(setLogado);
+  }, [])
   
-  render() {
-    return (
-      <MuiThemeProvider theme={theme}>
-        {
-          !this.state.logado ?
-          (
-            <div className="App">
-              <header className="App-header">
-                <img src={logo} alt="logo"/>
-                <br/>
-                <Button onClick={this.handleClick} variant="contained" color="primary">
-                  Entrar com sua conta Goole
-                </Button>
-              </header>
-            </div>
-          ) :
-          <Home onLogout={ this.handleClick } />
+  const handleClick = (event, value) => {
+    Firebase.signInGoogle().then(function(result) {
+      setLogado(!logado)
+    }).catch(function(error) {
+      alert("Erro!")
+    });
+  };
+
+  return (
+    <MuiThemeProvider theme={theme}>
+      {
+        !logado ?
+        (
+          <div className="App">
+            <header className="App-header">
+              <img src={logo} alt="logo"/>
+              <br/>
+              <Button onClick={handleClick} variant="contained" color="primary">
+                Entrar com sua conta Goole
+              </Button>
+            </header>
+          </div>
+        ) :
+        <Home onLogout={ handleClick } />
+      }
+    </MuiThemeProvider>
+  );
+  
+}
+
+const setupFb = (setLogado) => {
+  Firebase.auth.onAuthStateChanged((user) => {
+    if (user) {
+      Firebase.users.doc(user.uid).get().then((doc) => {
+        if (doc.exists) {
+          const userData = doc.data()
+          setLogado(true);
+        }else {
+          console.log(user)
+          Firebase.users.doc(user.uid).set({name: user.displayName, photoURL: user.photoURL});
         }
-      </MuiThemeProvider>
-    );
-  }
+      }).catch((error) => {
+        console.log(error)
+      })
+    }else {
+      setLogado(false);
+    }
+  })
 }
 
 export default App;
