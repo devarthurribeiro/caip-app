@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -10,6 +10,7 @@ import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 
 import SaleDialog from './SaleDialog'
+import Firebase from './firebase';
 
 
 const styles = theme => ({
@@ -21,20 +22,54 @@ const styles = theme => ({
 
 function Ranking(props) {
   const [open, setOpen ] = useState(false)
+  const [users, setUsers ] = useState([])
+
+  useEffect(() => {
+    Firebase.users.orderBy('name').get()
+    .then((querySnapshot)=> {
+        const list = []
+        querySnapshot.forEach((doc) => {
+          list.push({ id: doc.id, ...doc.data() });
+        });
+        setUsers(list)
+    })
+    .catch(function(error) {
+        console.log("Error getting documents: ", error);
+    });
+  }, [])
 
   const handleToggle = () => setOpen(!open)
 
+  const addSale = (qty) => {
+    if(qty > 0) {
+      const user = Firebase.auth.currentUser;
+    
+      Firebase.users.doc(user.uid).collection('sales').add({
+        qty,
+        date: new Date()
+      }).then( () => {
+        alert("Venda registrada!");
+      }).catch( () => {
+        alert("Erro ao registrada!")
+      });
+
+      handleToggle();
+    }else {
+      alert("Quantidade inválida")
+    }
+  }
+
   return (
     <div className={props.classes.root}>
-      <SaleDialog open={open} onClose={handleToggle} />
+      <SaleDialog open={open} onClose={handleToggle} onSave={addSale} />
       <Typography style={{padding: 16}} variant="h6" color="inherit">
         Participantes
       </Typography>
         <List dense>
-          {[3, 2, 1, 0].map((value, index) => (
-            <ListItem key={value} button>
-              <Avatar alt="Remy Sharp" src={`https://randomuser.me/api/portraits/men/${value + 10}.jpg`} />
-              <ListItemText primary={`Participante ${value + 1}`} />
+          {users.map((user, index) => (
+            <ListItem key={user.id} button>
+              <Avatar alt="Remy Sharp" src={user.photoURL} />
+              <ListItemText primary={user.name} />
               <ListItemSecondaryAction style={{marginRight: 8}}>
                 {index + 1}
               </ListItemSecondaryAction>

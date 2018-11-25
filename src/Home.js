@@ -15,7 +15,6 @@ import './Home.css';
 
 import Ranking from './Ranking';
 import Profile from './Profile';
-import Firebase from './firebase';
 
 
 const styles = {

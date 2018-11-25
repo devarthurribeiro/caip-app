@@ -60,7 +60,6 @@ const setupFb = (setLogado) => {
           const userData = doc.data()
           setLogado(true);
         }else {
-          console.log(user)
           Firebase.users.doc(user.uid).set({name: user.displayName, photoURL: user.photoURL});
         }
       }).catch((error) => {
