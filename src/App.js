@@ -1,26 +1,48 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import Button from '@material-ui/core/Button';
 import './App.css';
+import logo from './logo.webp'
+import Home from './Home'
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {main: "#307938"},
+    secondary: { main: '#fbae3e'}
+  },
+});
 
 class App extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      logado: false
+    }
+  }
+
+  handleClick = (event, value) => {
+    this.setState({ logado: !this.state.logado });
+  };
+  
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+      <MuiThemeProvider theme={theme}>
+        {
+          !this.state.logado ?
+          (
+            <div className="App">
+              <header className="App-header">
+                <img src={logo} alt="logo"/>
+                <br/>
+                <Button onClick={this.handleClick} variant="contained" color="primary">
+                  Entrar com sua conta Goole
+                </Button>
+              </header>
+            </div>
+          ) :
+          <Home onLogout={ this.handleClick } />
+        }
+      </MuiThemeProvider>
     );
   }
 }
